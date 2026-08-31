@@ -270,10 +270,8 @@ function drawWave(frame: DrawFrame): void {
   const span = w * 0.92;
   const slot = span / n;
 
-  // Glow behind the wave
   bloom(ctx, w * 0.5, midY, w * 0.5, theme.glow, 0.04 + bass * 0.12);
 
-  // Horizontal baseline glow
   const hg = ctx.createLinearGradient(margin, 0, margin + span, 0);
   hg.addColorStop(0, "rgba(255,255,255,0)");
   hg.addColorStop(0.5, rgba(theme.glow, 0.3 + bass * 0.25));
@@ -285,7 +283,6 @@ function drawWave(frame: DrawFrame): void {
   ctx.lineWidth = 1.2;
   ctx.stroke();
 
-  // Draw the wave bars (up and down)
   for (let i = 0; i < n; i++) {
     const amp = values[i] ?? 0;
     const peak = peaks[i] ?? amp;
@@ -294,12 +291,9 @@ function drawWave(frame: DrawFrame): void {
     const color = barColor(theme, t, amp);
     const height = amp * ampScale;
 
-    // Upper bar
     drawNeedle(ctx, x, midY, x, midY - height, amp, color, theme.glow);
-    // Lower bar (mirrored)
     drawNeedle(ctx, x, midY, x, midY + height, amp * 0.85, color, theme.glow);
 
-    // Peak dots
     const pyTop = midY - peak * ampScale;
     const pyBottom = midY + peak * ampScale;
     ctx.beginPath();
@@ -312,7 +306,6 @@ function drawWave(frame: DrawFrame): void {
     ctx.fill();
   }
 
-  // Scanning laser line (futuristic HUD effect)
   const scanX = (Math.sin(time * 0.6) * 0.5 + 0.5) * span + margin;
   ctx.beginPath();
   ctx.moveTo(scanX, midY - 20 - bass * 15);
@@ -324,39 +317,12 @@ function drawWave(frame: DrawFrame): void {
   ctx.stroke();
   ctx.shadowBlur = 0;
 
-  // Bottom fade
   const fade = ctx.createLinearGradient(0, midY, 0, h);
   fade.addColorStop(0, "rgba(5,5,6,0)");
   fade.addColorStop(0.5, "rgba(5,5,6,0.15)");
   fade.addColorStop(1, "rgba(5,5,6,0.7)");
   ctx.fillStyle = fade;
   ctx.fillRect(0, midY, w, h - midY);
-                           }
-  if (timeDomain && timeDomain.length > 8) {
-    ctx.beginPath();
-    const steps = 180;
-    for (let i = 0; i <= steps; i++) {
-      const idx = Math.floor((i / steps) * (timeDomain.length - 1));
-      const v = ((timeDomain[idx] ?? 128) - 128) / 128;
-      const r = maxR * 0.1 + v * maxR * 0.08 + bass * maxR * 0.04;
-      const a = (i / steps) * Math.PI * 2;
-      const x = cx + Math.cos(a) * r;
-      const y = cy + Math.sin(a) * r;
-      if (i === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-    ctx.closePath();
-    ctx.fillStyle = rgba(theme.glow, 0.08 + energy * 0.1);
-    ctx.fill();
-    ctx.strokeStyle = rgba(theme.high, 0.4);
-    ctx.lineWidth = 1;
-    ctx.stroke();
-  }
-
-  ctx.beginPath();
-  ctx.arc(cx, cy, 3 + bass * 6, 0, Math.PI * 2);
-  ctx.fillStyle = rgba(theme.high, 0.85);
-  ctx.fill();
 }
 
 export function drawVisualizer(frame: DrawFrame): void {
@@ -366,7 +332,7 @@ export function drawVisualizer(frame: DrawFrame): void {
 
   if (mode === "spire") drawSpire(frame);
   else if (mode === "orbit") drawOrbit(frame);
-  else drawWave(frame);  // <--- REPLACED HALO WITH WAVE
+  else drawWave(frame);
 
   vignette(ctx, width, height);
-}
+               }
