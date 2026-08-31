@@ -1,0 +1,38 @@
+{
+  "url": "http://127.0.0.1:8081/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Vanta",
+      "hasCanvas": true,
+      "bodyTextLen": 223,
+      "bodyTextHash": "d5eff1c7155e9eba8d154d85f1dfe1aa6525b4ee706ef42ab9ced023cba2dcd1",
+      "bodyTextPrefix": "Vanta Listen in the dark Spire Orbit Halo Vanta A black-field vi",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Vanta",
+      "hasCanvas": true,
+      "bodyTextLen": 185,
+      "bodyTextHash": "8744b0c04b865d0a47289f4d09afb0602e135f6e7a29ef0a42b497c4d3a12cf5",
+      "bodyTextPrefix": "Vanta Listen in the dark Spire Orbit Halo Vanta A black-field vi",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-built.json",
+  "divergesFromBaseline": false,
+  "baselineReasons": []
+}
