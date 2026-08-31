@@ -366,7 +366,7 @@ export function drawVisualizer(frame: DrawFrame): void {
 
   if (mode === "spire") drawSpire(frame);
   else if (mode === "orbit") drawOrbit(frame);
-  else drawHalo(frame);  // <--- THIS IS THE LINE TO CHANGE
+  else drawWave(frame);  // <--- REPLACED HALO WITH WAVE
 
   vignette(ctx, width, height);
 }
