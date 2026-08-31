@@ -261,54 +261,77 @@ function drawOrbit(frame: DrawFrame): void {
   ctx.fill();
 }
 
-function drawHalo(frame: DrawFrame): void {
-  const { ctx, width: w, height: h, values, theme, time, bass, energy, timeDomain } = frame;
-  const cx = w * 0.5;
-  const cy = h * 0.52;
-  const maxR = Math.min(w, h) * 0.4;
-  const bands = 7;
+function drawWave(frame: DrawFrame): void {
+  const { ctx, width: w, height: h, values, peaks, theme, time, bass, energy } = frame;
+  const n = values.length;
+  const midY = h * 0.5;
+  const ampScale = Math.min(w, h) * 0.35;
+  const margin = w * 0.04;
+  const span = w * 0.92;
+  const slot = span / n;
 
-  bloom(ctx, cx, cy, maxR * 1.2, theme.glow, 0.05 + bass * 0.14);
+  // Glow behind the wave
+  bloom(ctx, w * 0.5, midY, w * 0.5, theme.glow, 0.04 + bass * 0.12);
 
-  for (let b = 0; b < bands; b++) {
-    const t0 = b / bands;
-    const t1 = (b + 1) / bands;
-    const e = bandEnergy(values, t0, t1);
-    const radius = maxR * (0.22 + t0 * 0.78) * (1 + bass * 0.03);
-    const lw = 1 + e * (10 - b * 0.7);
-    const speed = 0.08 + b * 0.05;
-    const start = time * speed * (b % 2 === 0 ? 1 : -1) + b * 0.7;
-    const span = Math.PI * (0.55 + e * 1.15);
-    const color = barColor(theme, t0, e);
+  // Horizontal baseline glow
+  const hg = ctx.createLinearGradient(margin, 0, margin + span, 0);
+  hg.addColorStop(0, "rgba(255,255,255,0)");
+  hg.addColorStop(0.5, rgba(theme.glow, 0.3 + bass * 0.25));
+  hg.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.beginPath();
+  ctx.moveTo(margin, midY);
+  ctx.lineTo(margin + span, midY);
+  ctx.strokeStyle = hg;
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
 
+  // Draw the wave bars (up and down)
+  for (let i = 0; i < n; i++) {
+    const amp = values[i] ?? 0;
+    const peak = peaks[i] ?? amp;
+    const x = margin + (i + 0.5) * slot;
+    const t = n === 1 ? 0 : i / (n - 1);
+    const color = barColor(theme, t, amp);
+    const height = amp * ampScale;
+
+    // Upper bar
+    drawNeedle(ctx, x, midY, x, midY - height, amp, color, theme.glow);
+    // Lower bar (mirrored)
+    drawNeedle(ctx, x, midY, x, midY + height, amp * 0.85, color, theme.glow);
+
+    // Peak dots
+    const pyTop = midY - peak * ampScale;
+    const pyBottom = midY + peak * ampScale;
     ctx.beginPath();
-    ctx.arc(cx, cy, radius, start, start + span);
-    ctx.strokeStyle = rgba(color, 0.18 + e * 0.7);
-    ctx.lineWidth = lw;
-    ctx.lineCap = "round";
-    ctx.stroke();
-
+    ctx.arc(x, pyTop, 1.2, 0, Math.PI * 2);
+    ctx.fillStyle = rgba(theme.high, 0.25 + peak * 0.5);
+    ctx.fill();
     ctx.beginPath();
-    ctx.arc(cx, cy, radius, start + Math.PI, start + Math.PI + span * 0.7);
-    ctx.strokeStyle = rgba(color, 0.1 + e * 0.35);
-    ctx.lineWidth = Math.max(1, lw * 0.45);
-    ctx.stroke();
+    ctx.arc(x, pyBottom, 1.2, 0, Math.PI * 2);
+    ctx.fillStyle = rgba(theme.high, 0.15 + peak * 0.35);
+    ctx.fill();
   }
 
-  const ticks = 48;
-  for (let i = 0; i < ticks; i++) {
-    const amp = values[Math.floor((i / ticks) * values.length)] ?? 0;
-    const ang = (i / ticks) * Math.PI * 2 + time * 0.05;
-    const r0 = maxR * 0.12;
-    const r1 = r0 + amp * maxR * 0.16;
-    ctx.beginPath();
-    ctx.moveTo(cx + Math.cos(ang) * r0, cy + Math.sin(ang) * r0);
-    ctx.lineTo(cx + Math.cos(ang) * r1, cy + Math.sin(ang) * r1);
-    ctx.strokeStyle = rgba(theme.mid, 0.25 + amp * 0.55);
-    ctx.lineWidth = 1.2;
-    ctx.stroke();
-  }
+  // Scanning laser line (futuristic HUD effect)
+  const scanX = (Math.sin(time * 0.6) * 0.5 + 0.5) * span + margin;
+  ctx.beginPath();
+  ctx.moveTo(scanX, midY - 20 - bass * 15);
+  ctx.lineTo(scanX, midY + 20 + bass * 15);
+  ctx.strokeStyle = rgba(theme.high, 0.25 + bass * 0.25);
+  ctx.lineWidth = 1.6;
+  ctx.shadowColor = rgba(theme.glow, 0.5);
+  ctx.shadowBlur = 12;
+  ctx.stroke();
+  ctx.shadowBlur = 0;
 
+  // Bottom fade
+  const fade = ctx.createLinearGradient(0, midY, 0, h);
+  fade.addColorStop(0, "rgba(5,5,6,0)");
+  fade.addColorStop(0.5, "rgba(5,5,6,0.15)");
+  fade.addColorStop(1, "rgba(5,5,6,0.7)");
+  ctx.fillStyle = fade;
+  ctx.fillRect(0, midY, w, h - midY);
+                           }
   if (timeDomain && timeDomain.length > 8) {
     ctx.beginPath();
     const steps = 180;
